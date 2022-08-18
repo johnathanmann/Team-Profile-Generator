@@ -1,15 +1,17 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 
-
+// Question for choosing team member type
 const addMembers = [
   {
       type: "list",
       message: "Add team members",
-      choices: ["Engineer", "Intern"],
+      choices: ["Engineer", "Intern", "No More!"],
       name: "employeeType",
     }
   ];
+
+// Manager questions these are only asked once
 const managerQuestions = [
     {
         type: 'input',
@@ -32,6 +34,8 @@ const managerQuestions = [
           name: 'managerOffice',
         }
         ];
+
+// Engineer questions can be asked as many times as desired
   const engineerQuestions = [
     {
         type: 'input',
@@ -60,6 +64,7 @@ const managerQuestions = [
           },
   ];
 
+// Intern questions can be asked as many times as desired
   const internQuestions = [
     {
         type: 'input',
@@ -87,31 +92,37 @@ const managerQuestions = [
             name: 'addIntern',
           },
   ];
+
+  // Asks manager questions
 function manager(){
     return inquirer.prompt(managerQuestions)
 }
+
+// Asks intern or engineer questions
   function getAnswers() {
-    return inquirer.prompt(addMembers).then(() => {
-          if ("Engineer") {
+    return inquirer.prompt(addMembers).then((response) => {
+      // Allows the asking of the engineer questions and then the looping of questions if desired
+          if (response.employeeType === "Engineer" ) {
             return inquirer.prompt(engineerQuestions).then((answers)=>{
                 if (answers.addEngineer) {
                     return getAnswers();
-                  } else {
-                    return inquirer.prompt(addMembers)
                   }
             })
           }
-          if ("Intern") {
+          // Allows the asking of the intern questions and then the looping of questions if desired 
+          if (response.employeeType === "Intern") {
             return inquirer.prompt(internQuestions).then((answers)=>{
                 if (answers.addIntern) {
                     return getAnswers();
-                  } else {
-                    return inquirer.prompt(addMembers)
                   }
             })
           }
+
+          if (response.employeeType === "No More!") {
+          }
         })
     };
+  // Asks manager questions and then the engineer/intern
   manager().then (()=>{
     getAnswers()
   })
