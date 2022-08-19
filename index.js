@@ -1,5 +1,10 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
+const Manager = require('./lib/Manager');
+const Engineer = require('./lib/Engineer');
+const Intern = require('./lib/Intern');
+const Employee = require('./lib/Employee');
+
 
 // Question for choosing team member type
 const addMembers = [
@@ -50,7 +55,7 @@ const managerQuestions = [
         {
           type: 'input',
           message: 'What is the engineers email?',
-          name: 'managerEmail',
+          name: 'engineerEmail',
         },
         {
           type: 'input',
@@ -96,7 +101,12 @@ const managerQuestions = [
   // Asks manager questions
 function manager(){
     return inquirer.prompt(managerQuestions)
-}
+    .then((answers) => {
+    // Creates a new engineer based off user input
+    const managerAnswers = new Manager(answers.managerName, answers.managerId, answers.managerEmail, answers.managerOffice );
+      console.log(managerAnswers);
+  })
+  }
 
 // Asks intern or engineer questions
   function getAnswers() {
@@ -104,6 +114,9 @@ function manager(){
       // Allows the asking of the engineer questions and then the looping of questions if desired
           if (response.employeeType === "Engineer" ) {
             return inquirer.prompt(engineerQuestions).then((answers)=>{
+            // Creates a new engineer based off user input
+              const engineerAnswers = new Engineer(answers.engineerName, answers.engineerId, answers.engineerEmail, answers.engineerGithub );
+              console.log (engineerAnswers);
                 if (answers.addEngineer) {
                     return getAnswers();
                   }
@@ -112,17 +125,19 @@ function manager(){
           // Allows the asking of the intern questions and then the looping of questions if desired 
           if (response.employeeType === "Intern") {
             return inquirer.prompt(internQuestions).then((answers)=>{
+              const internAnswers = new Intern(answers.internName, answers.internId, answers.internEmail, answers.internSchool );
+              console.log(internAnswers);
                 if (answers.addIntern) {
                     return getAnswers();
                   }
             })
           }
-
           if (response.employeeType === "No More!") {
           }
         })
     };
   // Asks manager questions and then the engineer/intern
   manager().then (()=>{
-    getAnswers()
+    getAnswers();
+    
   })
