@@ -1,10 +1,7 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
-const Manager = require('./lib/Manager');
-const Engineer = require('./lib/Engineer');
-const Intern = require('./lib/Intern');
-const Employee = require('./lib/Employee');
-
+const generateHead = require('./src/createHead');
+const generateBottom = require('./src/createBottom');
 
 // Question for choosing team member type
 const addMembers = [
@@ -22,6 +19,11 @@ const managerQuestions = [
         type: 'input',
         message: 'What is the team managers name?',
         name: 'managerName',
+      },
+      {
+        type: 'input',
+        message: 'What is the managers title?',
+        name: 'managerTitle',
       },
       {
           type: 'input',
@@ -98,13 +100,16 @@ const managerQuestions = [
           },
   ];
 
-  // Asks manager questions
+// Asks manager questions
 function manager(){
     return inquirer.prompt(managerQuestions)
+    // After questions have been answered the manager card wll be appended to the html file
     .then((answers) => {
-    // Creates a new engineer based off user input
-    const managerAnswers = new Manager(answers.managerName, answers.managerId, answers.managerEmail, answers.managerOffice );
-      console.log(managerAnswers);
+      fs.appendFile("dist/index.html", '<div class="card mx-4 my-4" style="width: 15rem;"><div class="card-body"><h5 class="card-title">'+answers.managerName+'</h5><h6 class="card-subtitle mb-2 text-muted"><i class="fa-solid fa-briefcase"></i> Manager</h6><p class="card-text">ID:'+answers.managerId+' </p><p class="card-text">Email:'+answers.managerEmail+'</p><p class="card-text">Office:'+answers.managerOffice+' <a href="#" class="card-link">Card link</a> </p></div></div>' , (err) => { 
+        if (err) { 
+          console.log(err); 
+        } 
+      });
   })
   }
 
@@ -113,31 +118,27 @@ function manager(){
     return inquirer.prompt(addMembers).then((response) => {
       // Allows the asking of the engineer questions and then the looping of questions if desired
           if (response.employeeType === "Engineer" ) {
-            return inquirer.prompt(engineerQuestions).then((answers)=>{
-            // Creates a new engineer based off user input
-              const engineerAnswers = new Engineer(answers.engineerName, answers.engineerId, answers.engineerEmail, answers.engineerGithub );
-              console.log (engineerAnswers);
-                if (answers.addEngineer) {
-                    return getAnswers();
-                  }
-            })
-          }
-          // Allows the asking of the intern questions and then the looping of questions if desired 
-          if (response.employeeType === "Intern") {
-            return inquirer.prompt(internQuestions).then((answers)=>{
-              const internAnswers = new Intern(answers.internName, answers.internId, answers.internEmail, answers.internSchool );
-              console.log(internAnswers);
-                if (answers.addIntern) {
-                    return getAnswers();
-                  }
-            })
-          }
-          if (response.employeeType === "No More!") {
-          }
-        })
-    };
-  // Asks manager questions and then the engineer/intern
+              // After questions have been answered the engineer card wll be appended to the html file as many times as requested by the user
+            return inquirer.prompt(engineerQuestions).then((answers) => {
+              fs.appendFile("dist/index.html", '<div class="card mx-4 my-4" style="width: 15rem;"><div class="card-body"><h5 class="card-title">'+answers.engineerName+'</h5><h6 class="card-subtitle mb-2 text-muted"><i class="fa-solid fa-computer"></i>Engineer</h6><p class="card-text">ID:'+answers.engineerId+' </p><p class="card-text">Email:'+answers.engineerEmail+'</p><p class="card-text">Office:'+answers.managerOffice+' <a href="https://github.com/'+answers.engineerGithub+'" class="card-link">Github:'+answers.engineerGithub+'</a></div></div>' , (err) => { 
+                if (err) {console.log(err); } });
+                if (answers.addEngineer) {return getAnswers();}})}
+          // Allows the asking of the intern questions and then the looping of questions if desired        
+            if (response.employeeType === "Intern") {
+              // After questions have been answered the intern card wll be appended to the html file as many times as requested by the user
+              return inquirer.prompt(internQuestions).then((answers)=>{
+              fs.appendFile("dist/index.html", '<div class="card mx-4 my-4" style="width: 15rem;"><div class="card-body"><h5 class="card-title">'+answers.internName+'</h5><h6 class="card-subtitle mb-2 text-muted"><i class="fa-solid fa-graduation-cap"></i>Intern</h6><p class="card-text">ID:'+answers.internId+' </p><p class="card-text">Email:'+answers.internEmail+'</p> <p class="card-text">Email:'+answers.internSchool+'</p>' , (err) => { 
+              if (err) { 
+              console.log(err); } });
+              if (answers.addIntern) {return getAnswers();}})}
+              if (response.employeeType === "No More!") {}})};
+  // Generates start of html document with generateHead() then asks and prints manager questions same with engineer/intern, and finally the scripts and bottom of page with generateBottom()
+  generateHead();
   manager().then (()=>{
-    getAnswers();
-    
-  })
+    getAnswers().then (()=>{
+      generateBottom();
+    })
+  });
+
+
+
