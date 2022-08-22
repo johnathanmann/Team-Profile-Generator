@@ -97,11 +97,11 @@ const managerQuestions = [
 
 // Asks manager questions
 function manager(){
+  // Generates head of document adn then title of page
+  generateHead();
     return inquirer.prompt(managerQuestions)
     // After questions have been answered the manager card wll be appended to the html file
     .then((answers) => {
-      // Generates head of document adn then title of page
-      generateHead();
       // Appends manager info to page
       fs.appendFile("dist/index.html", '<div class="card mx-4 my-4" style="width: 15rem;"><div class="card-body"><h5 class="card-title">'+answers.managerName+'</h5><h6 class="card-subtitle mb-2 text-muted"><i class="fa-solid fa-briefcase"></i> Manager</h6><p class="card-text">ID:'+answers.managerId+' </p><p class="card-text">Email:<a href = "mailto:'+answers.managerEmail+'">'+answers.managerEmail+'</a></p><p class="card-text">Office:'+answers.managerOffice+' </p></div></div>' , (err) => { 
         if (err) { 
